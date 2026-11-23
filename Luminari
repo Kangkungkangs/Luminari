@@ -1,116 +1,376 @@
+--==================================================
+--       P E A R K S   G A Y
+--          ULTIMATE 1000X
+--==================================================
+
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- CONFIG
-local TEXT = "PEARKS GAY"
-local RUN_TIME = 8
+-- CONFIGURATION
+local CONFIG = {
+    TEXT = "PEARKS GAY",
+    DURATION = 10,
+    FINAL_DELAY = 3,
+    TEXT_COUNT = 90,
+    PARTICLE_COUNT = 35
+}
 
--- GUI
+-- CLEAN OLD GUI
+local old = playerGui:FindFirstChild("PEARKS_GAY_ULTIMATE")
+if old then
+    old:Destroy()
+end
+
+--==================================================
+-- GUI SETUP
+--==================================================
+
 local gui = Instance.new("ScreenGui")
-gui.Name = "P E A R K S G A Y"
+gui.Name = "PEARKS_GAY_ULTIMATE"
 gui.IgnoreGuiInset = true
 gui.ResetOnSpawn = false
 gui.DisplayOrder = 999999
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 gui.Parent = playerGui
 
--- Background
-local background = Instance.new("Frame")
-background.Size = UDim2.fromScale(1, 1)
-background.BackgroundColor3 = Color3.new(0, 0, 0)
-background.BackgroundTransparency = 0.15
-background.BorderSizePixel = 0
-background.Parent = gui
+local root = Instance.new("Frame")
+root.Size = UDim2.fromScale(1, 1)
+root.BackgroundColor3 = Color3.fromRGB(5, 0, 0)
+root.BorderSizePixel = 0
+root.Parent = gui
 
--- Spam text
-local function createText(x, y)
+--==================================================
+-- HELPER
+--==================================================
+
+local function tween(object, duration, properties, style)
+    local info = TweenInfo.new(
+        duration,
+        style or Enum.EasingStyle.Quad,
+        Enum.EasingDirection.Out
+    )
+
+    local t = TweenService:Create(object, info, properties)
+    t:Play()
+    return t
+end
+
+local function createLabel(parent, text, size, position, color)
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.fromOffset(105, 35)
-    label.Position = UDim2.fromOffset(x, y)
     label.BackgroundTransparency = 1
-    label.Text = TEXT
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.Size = size
+    label.Position = position
+    label.Text = text
+    label.TextColor3 = color or Color3.new(1, 1, 1)
     label.TextStrokeColor3 = Color3.fromRGB(255, 0, 0)
     label.TextStrokeTransparency = 0
-    label.Font = Enum.Font.GothamBold
-    label.TextSize = 14
-    label.Rotation = math.random(-8, 8)
-    label.Parent = background
+    label.Font = Enum.Font.GothamBlack
+    label.TextScaled = true
+    label.Parent = parent
 
     return label
 end
 
-local camera = workspace.CurrentCamera
-local viewport = camera.ViewportSize
+--==================================================
+-- BACKGROUND
+--==================================================
 
-for y = 0, viewport.Y, 40 do
-    for x = 0, viewport.X, 105 do
-        createText(x, y)
-    end
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(5, 0, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(65, 0, 0)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 0, 0))
+})
+gradient.Rotation = 0
+gradient.Parent = root
+
+--==================================================
+-- BACKGROUND TEXT
+--==================================================
+
+local texts = {}
+
+for i = 1, CONFIG.TEXT_COUNT do
+    local label = createLabel(
+        root,
+        CONFIG.TEXT,
+        UDim2.fromOffset(math.random(90, 160), 30),
+        UDim2.fromScale(math.random(), math.random()),
+        Color3.fromRGB(255, math.random(0, 70), math.random(0, 70))
+    )
+
+    label.TextTransparency = 0.15
+    label.Rotation = math.random(-15, 15)
+    label.ZIndex = 2
+
+    table.insert(texts, label)
 end
 
--- Warning overlay
-local warning = Instance.new("TextLabel")
-warning.Size = UDim2.fromScale(1, 0.15)
-warning.Position = UDim2.fromScale(0, 0.4)
-warning.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
-warning.BackgroundTransparency = 0.15
-warning.Text = "!!! PEARKS GAY !!!"
-warning.TextColor3 = Color3.new(1, 1, 1)
-warning.TextStrokeTransparency = 0
-warning.Font = Enum.Font.GothamBlack
-warning.TextScaled = true
-warning.ZIndex = 10
-warning.Parent = gui
+--==================================================
+-- SCANLINES
+--==================================================
 
--- Glitch effect
-local glitchConnection
+local scanlines = {}
 
-glitchConnection = RunService.RenderStepped:Connect(function()
-    if not gui.Parent then
-        glitchConnection:Disconnect()
+for i = 1, 35 do
+    local line = Instance.new("Frame")
+    line.Size = UDim2.new(1, 0, 0, 2)
+    line.Position = UDim2.new(0, 0, i / 35, 0)
+    line.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    line.BackgroundTransparency = 0.88
+    line.BorderSizePixel = 0
+    line.ZIndex = 5
+    line.Parent = root
+
+    table.insert(scanlines, line)
+end
+
+--==================================================
+-- PARTICLES
+--==================================================
+
+for i = 1, CONFIG.PARTICLE_COUNT do
+    local particle = Instance.new("Frame")
+    local size = math.random(2, 5)
+
+    particle.Size = UDim2.fromOffset(size, size)
+    particle.Position = UDim2.fromScale(
+        math.random(),
+        math.random()
+    )
+    particle.BackgroundColor3 = Color3.fromRGB(255, 30, 30)
+    particle.BackgroundTransparency = 0.15
+    particle.BorderSizePixel = 0
+    particle.ZIndex = 6
+    particle.Parent = root
+
+    Instance.new("UICorner", particle).CornerRadius =
+        UDim.new(1, 0)
+
+    task.spawn(function()
+        while gui.Parent do
+            local destination = UDim2.fromScale(
+                math.random(),
+                math.random()
+            )
+
+            tween(
+                particle,
+                math.random(2, 5),
+                {Position = destination},
+                Enum.EasingStyle.Sine
+            )
+
+            task.wait(math.random(2, 4))
+        end
+    end)
+end
+
+--==================================================
+-- MAIN TITLE
+--==================================================
+
+local titleShadow = createLabel(
+    root,
+    CONFIG.TEXT,
+    UDim2.fromScale(0.95, 0.2),
+    UDim2.fromScale(0.035, 0.33),
+    Color3.fromRGB(255, 0, 0)
+)
+
+titleShadow.TextTransparency = 0.2
+titleShadow.ZIndex = 10
+
+local title = createLabel(
+    root,
+    CONFIG.TEXT,
+    UDim2.fromScale(0.95, 0.2),
+    UDim2.fromScale(0.025, 0.32),
+    Color3.fromRGB(255, 255, 255)
+)
+
+title.ZIndex = 11
+
+--==================================================
+-- WARNING PANEL
+--==================================================
+
+local panel = Instance.new("Frame")
+panel.AnchorPoint = Vector2.new(0.5, 0.5)
+panel.Position = UDim2.fromScale(0.5, 0.58)
+panel.Size = UDim2.fromScale(0.82, 0.2)
+panel.BackgroundColor3 = Color3.fromRGB(90, 0, 0)
+panel.BackgroundTransparency = 0.1
+panel.BorderSizePixel = 0
+panel.ZIndex = 15
+panel.Parent = root
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(255, 0, 0)
+stroke.Thickness = 3
+stroke.Parent = panel
+
+local panelCorner = Instance.new("UICorner")
+panelCorner.CornerRadius = UDim.new(0, 8)
+panelCorner.Parent = panel
+
+local warning = createLabel(
+    panel,
+    "!!! PEARKS GAY !!!",
+    UDim2.fromScale(0.95, 0.65),
+    UDim2.fromScale(0.025, 0.05)
+)
+
+warning.ZIndex = 16
+
+local subtitle = createLabel(
+    panel,
+    "SYSTEM OVERRIDE // PEARKS GAY",
+    UDim2.fromScale(0.95, 0.2),
+    UDim2.fromScale(0.025, 0.72),
+    Color3.fromRGB(255, 180, 180)
+)
+
+subtitle.ZIndex = 16
+
+--==================================================
+-- COUNTDOWN
+--==================================================
+
+local countdown = createLabel(
+    root,
+    "INITIALIZING...",
+    UDim2.fromScale(0.9, 0.07),
+    UDim2.fromScale(0.05, 0.83),
+    Color3.fromRGB(255, 50, 50)
+)
+
+countdown.ZIndex = 20
+
+--==================================================
+-- GLITCH BARS
+--==================================================
+
+local glitchBars = {}
+
+for i = 1, 12 do
+    local bar = Instance.new("Frame")
+    bar.Size = UDim2.new(1, 0, 0, math.random(2, 8))
+    bar.Position = UDim2.fromScale(0, math.random())
+    bar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    bar.BackgroundTransparency = 0.55
+    bar.BorderSizePixel = 0
+    bar.ZIndex = 25
+    bar.Parent = root
+
+    table.insert(glitchBars, bar)
+end
+
+--==================================================
+-- ANIMATION ENGINE
+--==================================================
+
+local running = true
+local startTime = os.clock()
+
+local connection
+
+connection = RunService.RenderStepped:Connect(function()
+    if not running or not gui.Parent then
         return
     end
 
-    background.BackgroundColor3 =
-        math.random(1, 2) == 1
-        and Color3.fromRGB(20, 0, 0)
-        or Color3.fromRGB(0, 0, 0)
+    local elapsed = os.clock() - startTime
 
-    warning.Position = UDim2.fromScale(
-        math.random(-2, 2) / 100,
-        0.4 + math.random(-2, 2) / 100
+    gradient.Rotation = (elapsed * 35) % 360
+
+    -- Main title animation
+    title.Rotation = math.sin(elapsed * 8) * 2
+    titleShadow.Position = UDim2.fromScale(
+        0.035 + math.random(-2, 2) / 1000,
+        0.33 + math.random(-2, 2) / 1000
+    )
+
+    -- Text glitch
+    for i, label in ipairs(texts) do
+        if i % 4 == 0 then
+            label.Position = UDim2.fromScale(
+                math.random(),
+                math.random()
+            )
+        end
+    end
+
+    -- Glitch bars
+    for _, bar in ipairs(glitchBars) do
+        bar.Position = UDim2.fromScale(
+            0,
+            math.random()
+        )
+
+        bar.BackgroundTransparency = math.random(35, 85) / 100
+    end
+
+    -- Scanline movement
+    for _, line in ipairs(scanlines) do
+        line.BackgroundTransparency =
+            math.random(80, 95) / 100
+    end
+
+    -- Warning animation
+    panel.Rotation = math.sin(elapsed * 5) * 1.2
+end)
+
+--==================================================
+-- COUNTDOWN SEQUENCE
+--==================================================
+
+task.spawn(function()
+    tween(
+        panel,
+        0.8,
+        {Size = UDim2.fromScale(0.82, 0.2)},
+        Enum.EasingStyle.Back
+    )
+
+    for i = CONFIG.DURATION, 1, -1 do
+        countdown.Text = "SYSTEM TAKEOVER: " .. i
+
+        warning.Text = i % 2 == 0
+            and "!!! PEARKS GAY !!!"
+            or "PEARKS GAY DETECTED"
+
+        task.wait(1)
+    end
+
+    -- FINAL WARNING
+    warning.Text = "ACCOUNT WARNING"
+    subtitle.Text = "PEARKS GAY HAS FINISHED"
+
+    countdown.Text = "FINAL SEQUENCE"
+
+    tween(
+        panel,
+        0.5,
+        {BackgroundColor3 = Color3.fromRGB(160, 0, 0)}
+    )
+
+    task.wait(CONFIG.FINAL_DELAY)
+
+    -- STOP ANIMATIONS
+    running = false
+
+    if connection then
+        connection:Disconnect()
+    end
+
+    -- FINAL KICK
+    player:Kick(
+        "LU PUNYA WAKTU 24JAM UNTUK MENEBUS AKUN ATAU AKUN ANDA SAYA HACK."
     )
 end)
-
--- Flash effect
-task.spawn(function()
-    while gui.Parent do
-        background.BackgroundTransparency = 0
-        task.wait(0.08)
-        background.BackgroundTransparency = 0.3
-        task.wait(0.12)
-    end
-end)
-
--- Final sequence
-task.wait(RUN_TIME)
-
-warning.Text = "PEARKS GAY HAS FINISHED"
-warning.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
-
-task.wait(3)
-
-warning.Text = "ACCOUNT WARNING"
-task.wait(2)
-
-if glitchConnection then
-    glitchConnection:Disconnect()
-end
-
-player:Kick(
-    "LU PUNYA WAKTU 24JAM UNTUK NEBUS INI AKUN ATAU AKUN LU GW HACK."
-)
