@@ -1,6 +1,7 @@
 --==================================================
 --       PEARKS GAY ULTIMATE 100000X
---       DELTA EXECUTOR | LOCAL SCRIPT
+--       5 SECONDS EDITION
+--       DELTA EXECUTOR
 --==================================================
 
 local Players = game:GetService("Players")
@@ -10,7 +11,7 @@ local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 
 -- CONFIGURATION
-local DURATION = 15
+local DURATION = 5
 local ALARM_ID = "rbxassetid://3289150551"
 
 -- CLEAN OLD GUI
@@ -36,18 +37,17 @@ bg.Parent = gui
 
 local gradient = Instance.new("UIGradient")
 gradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 0, 0)),
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(5, 0, 0)),
     ColorSequenceKeypoint.new(0.5, Color3.fromRGB(65, 0, 0)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 0, 0))
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 0, 0))
 })
-gradient.Rotation = 45
 gradient.Parent = bg
 
--- ALARM SOUND
+-- ALARM
 local alarm = Instance.new("Sound")
 alarm.Name = "EmergencyAlarm"
 alarm.SoundId = ALARM_ID
-alarm.Volume = 0.8
+alarm.Volume = 0.5
 alarm.Looped = true
 alarm.Parent = gui
 
@@ -72,16 +72,16 @@ end
 -- BACKGROUND TEXT
 local backgroundTexts = {}
 
-for i = 1, 45 do
+for i = 1, 40 do
     local label = makeText(
         bg,
         "SYSTEM FAILURE",
         UDim2.fromOffset(math.random(100, 220), 35),
-        Color3.fromRGB(110, 0, 0),
+        Color3.fromRGB(120, 0, 0),
         Enum.Font.Code
     )
 
-    label.TextTransparency = 0.35
+    label.TextTransparency = 0.4
     label.Position = UDim2.fromScale(
         math.random(),
         math.random()
@@ -93,10 +93,10 @@ end
 -- SCANLINES
 local scanlines = {}
 
-for i = 1, 24 do
+for i = 1, 25 do
     local line = Instance.new("Frame")
     line.Size = UDim2.new(1, 0, 0, 2)
-    line.Position = UDim2.new(0, 0, i / 24, 0)
+    line.Position = UDim2.new(0, 0, i / 25, 0)
     line.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     line.BackgroundTransparency = 0.85
     line.BorderSizePixel = 0
@@ -132,7 +132,7 @@ local header = makeText(
 )
 header.Position = UDim2.fromScale(0.05, 0.04)
 
--- MAIN TITLE
+-- TITLE
 local title = makeText(
     panel,
     "PEARKS GAY",
@@ -175,7 +175,8 @@ local glitchBars = {}
 for i = 1, 12 do
     local bar = Instance.new("Frame")
     bar.Size = UDim2.new(
-        math.random(10, 80) / 100, 0,
+        math.random(10, 80) / 100,
+        0,
         0,
         math.random(2, 8)
     )
@@ -195,12 +196,9 @@ end
 -- PARTICLES
 local particles = {}
 
-for i = 1, 22 do
+for i = 1, 20 do
     local particle = Instance.new("Frame")
-    particle.Size = UDim2.fromOffset(
-        math.random(2, 5),
-        math.random(2, 5)
-    )
+    particle.Size = UDim2.fromOffset(4, 4)
     particle.Position = UDim2.fromScale(
         math.random(),
         math.random()
@@ -233,8 +231,6 @@ task.spawn(function()
                 math.random(),
                 math.random()
             )
-            label.TextTransparency =
-                math.random(20, 80) / 100
         end
 
         for _, line in ipairs(scanlines) do
@@ -250,12 +246,6 @@ task.spawn(function()
                     math.random(),
                     math.random()
                 )
-                bar.Size = UDim2.new(
-                    math.random(10, 80) / 100,
-                    0,
-                    0,
-                    math.random(2, 8)
-                )
             end
         end
 
@@ -266,18 +256,16 @@ task.spawn(function()
             )
         end
 
-        -- RANDOM FLASH
-        if math.random(1, 4) == 1 then
+        if math.random(1, 3) == 1 then
             flash.BackgroundTransparency = 0.82
 
             TweenService:Create(
                 flash,
-                TweenInfo.new(0.2),
+                TweenInfo.new(0.15),
                 {BackgroundTransparency = 1}
             ):Play()
         end
 
-        -- TITLE GLITCH
         title.Position = UDim2.fromScale(
             math.random(20, 30) / 100,
             0.19
@@ -307,17 +295,18 @@ for i = DURATION, 1, -1 do
     end
 
     countdown.Text = tostring(i)
+
+    -- ALARM GETS LOUDER
+    alarm.Volume = 0.4 + ((DURATION - i) * 0.1)
+
+    -- PANEL INTENSITY
+    stroke.Thickness = 3 + (DURATION - i)
+
     countdown.TextColor3 = Color3.fromRGB(
         255,
-        math.random(0, 80),
+        math.random(0, 50),
         0
     )
-
-    TweenService:Create(
-        countdown,
-        TweenInfo.new(0.25, Enum.EasingStyle.Back),
-        {TextTransparency = 0}
-    ):Play()
 
     task.wait(1)
 end
@@ -325,7 +314,6 @@ end
 -- FINAL WARNING
 if gui.Parent then
     header.Text = "⚠ SYSTEM TERMINATION ⚠"
-    title.Text = "PEARKS GAY"
     subtitle.Text = "CONNECTION TERMINATING"
     description.Text = "FINAL COUNTDOWN COMPLETE"
     countdown.Text = "00"
@@ -349,14 +337,14 @@ active = false
 pcall(function()
     TweenService:Create(
         alarm,
-        TweenInfo.new(1),
+        TweenInfo.new(0.5),
         {Volume = 0}
     ):Play()
 end)
 
-task.wait(1)
+task.wait(0.7)
 
--- PRANK MESSAGE ONLY APPEARS AFTER KICK
+-- KICK MESSAGE
 player:Kick(
     "3 JAM SEBELUM AKUN MU SAYA HACK."
 )
