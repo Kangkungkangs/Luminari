@@ -1,0 +1,116 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- CONFIG
+local TEXT = "PEARKS GAY"
+local RUN_TIME = 8
+
+-- GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "P E A R K S G A Y"
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.DisplayOrder = 999999
+gui.Parent = playerGui
+
+-- Background
+local background = Instance.new("Frame")
+background.Size = UDim2.fromScale(1, 1)
+background.BackgroundColor3 = Color3.new(0, 0, 0)
+background.BackgroundTransparency = 0.15
+background.BorderSizePixel = 0
+background.Parent = gui
+
+-- Spam text
+local function createText(x, y)
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.fromOffset(105, 35)
+    label.Position = UDim2.fromOffset(x, y)
+    label.BackgroundTransparency = 1
+    label.Text = TEXT
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextStrokeColor3 = Color3.fromRGB(255, 0, 0)
+    label.TextStrokeTransparency = 0
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 14
+    label.Rotation = math.random(-8, 8)
+    label.Parent = background
+
+    return label
+end
+
+local camera = workspace.CurrentCamera
+local viewport = camera.ViewportSize
+
+for y = 0, viewport.Y, 40 do
+    for x = 0, viewport.X, 105 do
+        createText(x, y)
+    end
+end
+
+-- Warning overlay
+local warning = Instance.new("TextLabel")
+warning.Size = UDim2.fromScale(1, 0.15)
+warning.Position = UDim2.fromScale(0, 0.4)
+warning.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+warning.BackgroundTransparency = 0.15
+warning.Text = "!!! PEARKS GAY !!!"
+warning.TextColor3 = Color3.new(1, 1, 1)
+warning.TextStrokeTransparency = 0
+warning.Font = Enum.Font.GothamBlack
+warning.TextScaled = true
+warning.ZIndex = 10
+warning.Parent = gui
+
+-- Glitch effect
+local glitchConnection
+
+glitchConnection = RunService.RenderStepped:Connect(function()
+    if not gui.Parent then
+        glitchConnection:Disconnect()
+        return
+    end
+
+    background.BackgroundColor3 =
+        math.random(1, 2) == 1
+        and Color3.fromRGB(20, 0, 0)
+        or Color3.fromRGB(0, 0, 0)
+
+    warning.Position = UDim2.fromScale(
+        math.random(-2, 2) / 100,
+        0.4 + math.random(-2, 2) / 100
+    )
+end)
+
+-- Flash effect
+task.spawn(function()
+    while gui.Parent do
+        background.BackgroundTransparency = 0
+        task.wait(0.08)
+        background.BackgroundTransparency = 0.3
+        task.wait(0.12)
+    end
+end)
+
+-- Final sequence
+task.wait(RUN_TIME)
+
+warning.Text = "PEARKS GAY HAS FINISHED"
+warning.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+
+task.wait(3)
+
+warning.Text = "ACCOUNT WARNING"
+task.wait(2)
+
+if glitchConnection then
+    glitchConnection:Disconnect()
+end
+
+player:Kick(
+    "LU PUNYA WAKTU 24JAM UNTUK NEBUS INI AKUN ATAU AKUN LU
+)
